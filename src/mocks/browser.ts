@@ -32,6 +32,7 @@ export const worker = setupWorker(
       total: TOTAL_ITEMS,
       page,
       pageSize: PAGE_SIZE,
+      hasMore: end >= TOTAL_ITEMS ? false : true,
     });
   })
 );
