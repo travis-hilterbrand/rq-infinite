@@ -2,6 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 type Item = { id: number; name: string };
 type PageData = {
+  hasMore: boolean;
   items: Item[];
   total: number;
   page: number;
@@ -28,7 +29,12 @@ export const InfiniteItems = () => {
     queryKey: ["infinite-items"],
     queryFn: fetchItems,
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.page + 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.hasMore === false) return undefined;
+      return lastPage.page + 1;
+    },
+    retry: 1,
+    staleTime: 5000,
   });
 
   if (isLoading) return <div>Loading...</div>;
@@ -44,7 +50,6 @@ export const InfiniteItems = () => {
       >
         Load more
       </button>
-      <span> Page {"TODO"} </span>
       <ul>
         {items.map((item) => (
           <li key={item.id}>{item.name}</li>
