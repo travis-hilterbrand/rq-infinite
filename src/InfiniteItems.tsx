@@ -1,12 +1,18 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { Item } from "./types";
 import { fetchItems } from "./api";
+import { useMemo } from "react";
+import { v4 } from "uuid";
 
 export const InfiniteItems = ({
   showOnlyReady,
 }: {
   showOnlyReady: boolean;
 }) => {
+  const filterKey = useMemo(() => {
+    return `${showOnlyReady}:${v4()}`;
+  }, [showOnlyReady]);
+
   const {
     data,
     isError,
@@ -17,7 +23,7 @@ export const InfiniteItems = ({
     error,
   } = useInfiniteQuery({
     enabled: true,
-    queryKey: ["infinite-items", showOnlyReady],
+    queryKey: ["infinite-items", filterKey],
     queryFn: ({ pageParam }) => fetchItems(pageParam, showOnlyReady),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
