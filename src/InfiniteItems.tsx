@@ -1,21 +1,12 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
+import type { Item } from "./types";
+import { fetchItems } from "./api";
 
-type Item = { id: number; name: string };
-type PageData = {
-  hasMore: boolean;
-  items: Item[];
-  total: number;
-  page: number;
-  pageSize: number;
-};
-
-const fetchItems = async ({ pageParam = 1 }): Promise<PageData> => {
-  const res = await fetch(`/api/items?page=${pageParam}`);
-  if (!res.ok) throw new Error("Network response was not ok");
-  return res.json();
-};
-
-export const InfiniteItems = () => {
+export const InfiniteItems = ({
+  showOnlyReady,
+}: {
+  showOnlyReady: boolean;
+}) => {
   const {
     data,
     isError,
@@ -26,8 +17,8 @@ export const InfiniteItems = () => {
     error,
   } = useInfiniteQuery({
     enabled: true,
-    queryKey: ["infinite-items"],
-    queryFn: fetchItems,
+    queryKey: ["infinite-items", showOnlyReady],
+    queryFn: ({ pageParam }) => fetchItems(pageParam, showOnlyReady),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (lastPage.hasMore === false) return undefined;
@@ -52,7 +43,7 @@ export const InfiniteItems = () => {
       </button>
       <ul>
         {items.map((item) => (
-          <li key={item.id}>{item.name}</li>
+          <li key={item.id}>{item.name + " " + item.ready}</li>
         ))}
       </ul>
     </div>
